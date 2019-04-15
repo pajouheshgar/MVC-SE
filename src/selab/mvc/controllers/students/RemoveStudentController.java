@@ -5,17 +5,20 @@ import selab.mvc.controllers.Controller;
 import selab.mvc.models.DataContext;
 import selab.mvc.models.DataSet;
 import selab.mvc.models.entities.Student;
+import selab.mvc.models.entities.StudentCourse;
 import selab.mvc.views.JsonView;
 import selab.mvc.views.View;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class RemoveStudentController extends Controller {
 
     DataSet<Student> students;
+
     public RemoveStudentController(DataContext dataContext) {
         super(dataContext);
         students = dataContext.getStudents();
@@ -28,10 +31,20 @@ public class RemoveStudentController extends Controller {
 
         JSONObject input = readJson(body);
         String studentNo = input.getString("studentNo");
-
         // TODO: Add codes for removing the student
+        ArrayList<String> keys = new ArrayList<>();
+        DataSet<StudentCourse> studentCourses = DataContext.getStudentCourses();
+        for (StudentCourse sc : studentCourses.getAll()) {
+            if (sc.getStudent().getPrimaryKey().equals(studentNo)) {
+                keys.add(sc.getPrimaryKey());
+            }
+        }
+        for (String s : keys) {
+            DataContext.getStudentCourses().remove(s);
+        }
+        DataContext.getStudents().remove(studentNo);
 
-        return null;
+        return new JsonView(new JSONObject());
     }
 
     @Override

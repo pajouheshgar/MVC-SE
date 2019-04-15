@@ -42,4 +42,5 @@ public class StudentCourse implements Model {
     public void setGrade(int grade) {
         this.grade = grade;
     }
+
 }
