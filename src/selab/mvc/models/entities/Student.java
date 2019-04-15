@@ -15,8 +15,13 @@ public class Student implements Model {
         return this.studentNo;
     }
 
-    public void setName(String value) { this.name = value; }
-    public String getName() { return this.name; }
+    public void setName(String value) {
+        this.name = value;
+    }
+
+    public String getName() {
+        return this.name;
+    }
 
     public void setStudentNo(String value) {
         if (!validateStudentNo(value))
@@ -24,25 +29,36 @@ public class Student implements Model {
 
         this.studentNo = value;
     }
-    public String getStudentNo() { return this.studentNo; }
+
+    public String getStudentNo() {
+        return this.studentNo;
+    }
 
     public float getAverage() {
         // TODO: Calculate and return the average of the points
         DataSet<StudentCourse> studentCourses = DataContext.getStudentCourses();
-        int count= 0;
+        int count = 0;
         float avg = 0.0f;
-//        for (StudentCourse sc: studentCourses.getAll()){
-//            if()
-//        }
-        return 0;
+        for (StudentCourse sc : studentCourses.getAll()) {
+            if (sc.getStudent().getPrimaryKey().equals(this.getPrimaryKey())) {
+                count++;
+                avg += sc.getGrade();
+            }
+        }
+        if (count == 0) {
+            return 0;
+        } else {
+            return avg / count;
+        }
+
     }
 
     public String getCourses() {
         // TODO: Return a comma separated list of course names
         DataSet<StudentCourse> studentCourses = DataContext.getStudentCourses();
         String courses = "- ";
-        for (StudentCourse sc: studentCourses.getAll()){
-            if(sc.getStudent().getPrimaryKey().equals(this.getPrimaryKey())){
+        for (StudentCourse sc : studentCourses.getAll()) {
+            if (sc.getStudent().getPrimaryKey().equals(this.getPrimaryKey())) {
                 courses += sc.getCourse().getTitle();
                 courses += " -";
             }
@@ -51,7 +67,6 @@ public class Student implements Model {
     }
 
     /**
-     *
      * @param studentNo Student number to be checeked
      * @return true, if the format of the student number is correct
      */

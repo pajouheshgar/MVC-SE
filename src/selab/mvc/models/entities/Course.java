@@ -65,7 +65,21 @@ public class Course implements Model {
 
     public float getAverage() {
         // TODO: Calculate and return the average of the points
-        return 0;
+
+        DataSet<StudentCourse> studentCourses = DataContext.getStudentCourses();
+        int count= 0;
+        float avg = 0.0f;
+        for (StudentCourse sc: studentCourses.getAll()){
+            if(sc.getCourse().getPrimaryKey().equals(this.getPrimaryKey())){
+                count ++;
+                avg += sc.getGrade();
+            }
+        }
+        if (count == 0) {
+            return 0;
+        } else {
+            return avg / count;
+        }
     }
 
     public String getStudents() {
