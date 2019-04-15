@@ -1,5 +1,7 @@
 package selab.mvc.models.entities;
 
+import selab.mvc.models.DataContext;
+import selab.mvc.models.DataSet;
 import selab.mvc.models.Model;
 
 import java.util.regex.Pattern;
@@ -26,12 +28,26 @@ public class Student implements Model {
 
     public float getAverage() {
         // TODO: Calculate and return the average of the points
+        DataSet<StudentCourse> studentCourses = DataContext.getStudentCourses();
+        int count= 0;
+        float avg = 0.0f;
+//        for (StudentCourse sc: studentCourses.getAll()){
+//            if()
+//        }
         return 0;
     }
 
     public String getCourses() {
         // TODO: Return a comma separated list of course names
-        return "-";
+        DataSet<StudentCourse> studentCourses = DataContext.getStudentCourses();
+        String courses = "- ";
+        for (StudentCourse sc: studentCourses.getAll()){
+            if(sc.getStudent().getPrimaryKey().equals(this.getPrimaryKey())){
+                courses += sc.getCourse().getTitle();
+                courses += " -";
+            }
+        }
+        return courses;
     }
 
     /**

@@ -1,8 +1,11 @@
 package selab.mvc.models.entities;
 
+import selab.mvc.models.DataContext;
+import selab.mvc.models.DataSet;
 import selab.mvc.models.Model;
 import sun.misc.Regexp;
 
+import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 public class Course implements Model {
@@ -67,7 +70,15 @@ public class Course implements Model {
 
     public String getStudents() {
         // TODO: Return a comma separated list of student names
-        return "-";
+        DataSet<StudentCourse> studentCourses = DataContext.getStudentCourses();
+        String students = "- ";
+        for (StudentCourse sc: studentCourses.getAll()){
+            if(sc.getCourse().getPrimaryKey().equals(this.getPrimaryKey())){
+                students += sc.getStudent().getName();
+                students += " -";
+            }
+        }
+        return students;
     }
 
     /**

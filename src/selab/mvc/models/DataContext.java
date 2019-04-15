@@ -2,6 +2,7 @@ package selab.mvc.models;
 
 import selab.mvc.models.entities.Course;
 import selab.mvc.models.entities.Student;
+import selab.mvc.models.entities.StudentCourse;
 import selab.mvc.models.entities.Weekday;
 
 public class DataContext {
@@ -9,16 +10,21 @@ public class DataContext {
         seed();
     }
 
-    private DataSet<Student> students = new DataSet<>();
-    private DataSet<Course> courses = new DataSet<>();
+    private static DataSet<Student> students = new DataSet<>();
+    private static DataSet<Course> courses = new DataSet<>();
+    private static DataSet<StudentCourse> studentCourses = new DataSet<>();
 
-    public DataSet<Student> getStudents() { return this.students; }
-    public DataSet<Course> getCourses() { return this.courses; }
+    public static DataSet<Student> getStudents() { return students; }
+    public static DataSet<Course> getCourses() { return courses; }
+
+    public static DataSet<StudentCourse> getStudentCourses() {
+        return studentCourses;
+    }
 
     /**
      * Adding some initial data to the context
      */
-    public void seed() {
+    private static void seed() {
         Student student1 = new Student();
         student1.setName("Ahmadreza");
         student1.setStudentNo("96209547");
