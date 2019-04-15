@@ -1,0 +1,257 @@
+<!doctype html>
+<html>
+<head>
+    <title>Edu</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/js/bootstrap-datetimepicker.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/css/bootstrap-datetimepicker.min.css">
+
+    <style>
+
+    </style>
+</head>
+<body>
+<br>
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">Students list</div>
+        <div class="panel-body">
+            <div class="form-inline">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" class="form-control" id="name" placeholder="Jane Doe">
+                </div>
+                <div class="form-group">
+                    <label for="studentNo">Student no.</label>
+                    <input class="form-control" id="studentNo" placeholder="96209547">
+                </div>
+                <button class="btn btn-success" id="addStudent">Add</button>
+            </div>
+            <br>
+            <div id="students"></div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">Courses list</div>
+        <div class="panel-body">
+            <div class="form-inline">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" class="form-control" id="title" placeholder="SE Lab">
+                </div>
+                <div class="form-group">
+                    <label for="courseNo">Course no.</label>
+                    <input class="form-control" id="courseNo" placeholder="40444-1">
+                </div>
+                <div class="form-group" style="position: relative">
+                    <label for="startTime">Start time</label>
+                    <input class="form-control" id="startTime" placeholder="16:30" style="width: 100px;">
+                </div>
+                <div class="form-group" style="position: relative">
+                    <label for="endTime">End time</label>
+                    <input class="form-control" id="endTime" placeholder="19:00" style="width: 100px;">
+                </div>
+                <div class="form-group" style="position: relative">
+                    <label for="weekday">Weekday</label>
+                    <select class="form-control" id="weekday">
+                        <option value="Saturday">Saturday</option>
+                        <option value="Sunday">Sunday</option>
+                        <option value="Monday">Monday</option>
+                        <option value="Tuesday">Tuesday</option>
+                        <option value="Wednesday">Wednesday</option>
+                        <option value="Thursday">Thursday</option>
+                        <option value="Friday">Friday</option>
+                    </select>
+                </div>
+                <button class="btn btn-success" id="addCourse">Add</button>
+            </div>
+            <br>
+            <div id="courses"></div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">Add students to course</div>
+        <div class="panel-body">
+
+            <div class="form-inline">
+                Add the student
+                <div class="form-group">
+                    <select id="studentList" class="form-control"></select>
+                </div>
+                to the course
+                <div class="form-group">
+                    <select id="courseList" class="form-control"></select>
+                </div>
+                with points
+                <div class="form-group">
+                    <input class="form-control" id="points" placeholder="20" style="width: 50px;">
+                </div>
+                <button class="btn btn-success" id="addStudentToCourse">Go</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function() {
+        $('#startTime, #endTime').datetimepicker({
+            format: "HH:mm"
+        });
+        loadStudents();
+        loadCourses();
+
+        $("#addStudent").click(function () {
+            var data = {
+                name: $("#name").val(),
+                studentNo: $("#studentNo").val()
+            };
+            $.ajax({
+                url: "/students/add",
+                method: "post",
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                success: function (data) {
+                    loadStudents();
+                },
+                error: function (jqxhr) {
+                    alert(JSON.parse(jqxhr.responseText).message);
+                }
+            });
+        });
+
+        $("#addCourse").click(function () {
+            var data = {
+                title: $("#title").val(),
+                courseNo: $("#courseNo").val(),
+                startTime: $("#startTime").val(),
+                endTime: $("#endTime").val(),
+                weekday: $("#weekday").val()
+            };
+            $.ajax({
+                url: "/courses/add",
+                method: "post",
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                success: function (data) {
+                    loadCourses();
+                },
+                error: function (jqxhr) {
+                    alert(JSON.parse(jqxhr.responseText).message);
+                }
+            });
+        });
+
+        $("#addStudentToCourse").click(function () {
+            var data = {
+                studentNo: $("#studentList").val(),
+                courseNo: $("#courseList").val(),
+                points: $("#points").val()
+            };
+            $.ajax({
+                url: "/students/courses/add",
+                method: "post",
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                success: function (data) {
+                    // Refresh student and course list
+                    loadCourses();
+                    loadStudents();
+                },
+                error: function (jqxhr) {
+                    alert(JSON.parse(jqxhr.responseText).message);
+                }
+            });
+        });
+    });
+
+    function loadStudents() {
+        $.getJSON("/students/list", function (data) {
+            $("#students").empty();
+            $("#studentList").empty();
+            var html = "<table class='table'><tr><th></th><th>Student no.</th><th>Name</th><th>Courses</th><th>Average</th></tr>";
+            for (var i = 0; i < data.students.length; i++) {
+                var student = data.students[i];
+                html +=
+                    "<tr>" +
+                    "<td><button class='btn btn-sm btn-danger' onclick='removeStudent(\"" + student.studentNo + "\")'><span class=\"glyphicon glyphicon-remove\" aria-hidden=\"true\"></span></button>" + "</td>" +
+                    "<td>" + student.studentNo + "</td>" +
+                    "<td>" + student.name + "</td>" +
+                    "<td>" + student.courses + "</td>" +
+                    "<td>" + student.average + "</td>" +
+                    "</tr>";
+                $("#studentList").append("<option value='" + student.studentNo + "'>" + student.studentNo + " - " + student.name + "</option>");
+            }
+            html += "</table>";
+            $("#students").append(html);
+        });
+    }
+
+    function loadCourses() {
+        $.getJSON("/courses/list", function (data) {
+            $("#courses").empty();
+            $("#courseList").empty();
+            var html = "<table class='table'><tr><th></th><th>Course no.</th><th>Title</th><th>Start time</th><th>End time</th><th>Weekday</th><th>Students</th><th>Average</th></tr>";
+            for (var i = 0; i < data.courses.length; i++) {
+                var course = data.courses[i];
+                html +=
+                    "<tr>" +
+                    "<td><button class='btn btn-sm btn-danger' onclick='removeCourse(\"" + course.courseNo + "\")'><span class=\"glyphicon glyphicon-remove\" aria-hidden=\"true\"></span></button>" + "</td>" +
+                    "<td>" + course.courseNo + "</td>" +
+                    "<td>" + course.title + "</td>" +
+                    "<td>" + course.startTime + "</td>" +
+                    "<td>" + course.endTime + "</td>" +
+                    "<td>" + course.weekday + "</td>" +
+                    "<td>" + course.students + "</td>" +
+                    "<td>" + course.average + "</td>" +
+                    "</tr>";
+
+                $("#courseList").append("<option value='" + course.courseNo + "'>" + course.courseNo + " - " + course.title + "</option>");
+            }
+            html += "</table>";
+            $("#courses").append(html);
+        });
+    }
+
+    function removeCourse(courseNo) {
+        var data = {
+            courseNo: courseNo
+        };
+        $.ajax({
+            url: "/courses/remove",
+            method: "post",
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            success: function (data) {
+                loadCourses();
+            },
+            error: function (jqxhr) {
+                alert(JSON.parse(jqxhr.responseText).message);
+            }
+        });
+    }
+
+    function removeStudent(studentNo) {
+        var data = {
+            studentNo: studentNo
+        };
+        $.ajax({
+            url: "/students/remove",
+            method: "post",
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            success: function (data) {
+                loadCourses();
+            },
+            error: function (jqxhr) {
+                alert(JSON.parse(jqxhr.responseText).message);
+            }
+        });
+    }
+</script>
+</body>
+</html>
