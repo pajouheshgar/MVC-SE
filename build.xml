@@ -20,8 +20,9 @@
 
     <target name="make" depends="compile">
         <mkdir dir="output"/>
-<!--        <jar jarfile="output/output-${DSTAMP}.jar" basedir="build">-->
         <jar jarfile="server.jar" basedir="build">
+            <zipgroupfileset includes="*.jar" dir="./lib"/>
+
             <manifest>
                 <attribute name="Main-Class"
                            value="Main"/>
