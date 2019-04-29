@@ -1,0 +1,49 @@
+<?xml version ="1.0"?>
+<project name="MVC" default="make" basedir=".">
+    <path id="classpath">
+        <fileset dir="./lib">
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement path="./build"/>
+    </path>
+
+    <target name="init">
+        <tstamp/>
+        <mkdir dir="build"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="src" destdir="build" classpathref="classpath">
+               <compilerarg value="-Xlint" />
+        </javac>
+    </target>
+
+    <target name="make" depends="compile">
+        <mkdir dir="output"/>
+        <jar jarfile="output/output-${DSTAMP}.jar" basedir="build">
+            <manifest>
+                <attribute name="Main-Class"
+                           value="Main"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="clean">
+        <delete dir="build"/>
+        <delete dir="output"/>
+        <delete dir="out"/>
+    </target>
+
+    <target name="test" depends="make">
+        <junit printsummary="yes" haltonfailure="yes" >
+            <formatter type="plain"/>
+            <classpath>
+                <path refid="classpath"/>
+            </classpath>
+            <batchtest fork="yes">
+                <fileset dir="src" includes="**/*Test.java"/>
+            </batchtest>
+        </junit>
+    </target>
+
+</project>
