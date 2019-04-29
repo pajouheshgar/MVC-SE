@@ -12,7 +12,7 @@ import selab.mvc.models.DataContext;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        App app = new App(8001);
+        App app = new App(8321);
         DataContext dataContext = new DataContext();
 
         app.addController("/", new IndexController());
